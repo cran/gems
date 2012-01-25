@@ -74,7 +74,7 @@ simulateCohort(transitionFunctions,
 statesNumber <- 3 
 
 # cohort size
-cohortSize <- 1000
+cohortSize <- 100
 
 # specification of hazard functions
 hazardf <- generateHazardMatrix(statesNumber)
@@ -104,11 +104,11 @@ head(cohort)
 
 # transition probability
 tr <- transitionProbabilities(cohort, times=seq(0,4,.1))
-plot(tr, ci=TRUE)
+plot(tr, ci=FALSE)
 
 # cumulative incidence
 inc <- cumulativeIncidence(cohort, times=seq(0,4,.1))
-plot(inc, ci=TRUE, states=c(2,3))
+plot(inc, ci=FALSE, states=c(2,3))
 }
 
 \seealso{

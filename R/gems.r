@@ -218,7 +218,7 @@ function (hazardf, statesNumber, cohortSize, mu, sigma = matrix(0,
   }
 
   mu <- as.list(unlist(t(mu), recursive = FALSE))
-  
+
   if (length(mu) > 0) {
     mu <- lapply(mu, as.numeric)
   }
@@ -232,7 +232,7 @@ function (hazardf, statesNumber, cohortSize, mu, sigma = matrix(0,
   else if (is.null(dim(bl0))) {try(bl0 <- t(as.matrix(bl0)))}
   if (nrow(bl0) != cohortSize)
     warning("baseline is not of the right dimension")
-  
+
   for (i in 1:length(hazardf)) {
     if (is.element(i, impossible)) {
             if (historyl == FALSE)
@@ -248,7 +248,7 @@ function (hazardf, statesNumber, cohortSize, mu, sigma = matrix(0,
       k = k + 1
       parametric[k] = i
       if (hazardf[[i]] %in% c("Weibull", "multWeibull", "Exponential")) {
-        hazardf[[i]] <- switch(hazardf[[i]], 
+        hazardf[[i]] <- switch(hazardf[[i]],
                                Weibull=function(t, shape, scale, history, bl) rweibull(t, shape, scale),
                                multWeibull=function(t, w, shapes, scales, history, bl) multPar(t, w, shapes, scales),
                                Exponential=function(t, rate, history, bl) rexp(t, rate))
@@ -284,7 +284,7 @@ data_prep <-
   times[status == FALSE] <- maxtime + 1
   tmat <- auxcounter(states_number)
   tmat[tmat==0] <- NA
-  prepData <- msprep(times, status, trans = tmat, 
+  prepData <- msprep(times, status, trans = tmat,
                      start = list(state = 1, time = 0))
   return(prepData)
 }
@@ -367,10 +367,10 @@ generateParameterMatrix <-
   lengthMu <- numeric(length(hf))
   for (trans in 1:length(hf)) {
     if (class(hf[[trans]]) == "character") {
-      lengthMu[trans] <- switch(hf[[trans]], 
+      lengthMu[trans] <- switch(hf[[trans]],
                                 Weibull=2,
                                 multWeibull=3,
-                                Exponential=1, 
+                                Exponential=1,
                                 impossible=0)
     }
     else if (class(hf[[trans]]) == "function") {
@@ -401,14 +401,14 @@ histNoH <- function(gf, statesNumber, parametric, startingState, absorbing, bl, 
   possible <- auxcounter(statesNumber)
   # all possible transition times
   npar <- (1:length(gf))[!1:length(gf)%in%parametric]
-  time0 <- rep(NA,length(gf)) 
+  time0 <- rep(NA,length(gf))
   time0[parametric] <- unlist(lapply(gf[parametric], function(ff) samplerP(function(t) ff(t, bl=bl), n=1)))
   time0[npar] <- unlist(lapply(gf[npar], function(ff) sampler(n=1, function(t) ff(t, bl=bl))))
   #times in the transition matrix
   time = matrix(ncol = statesNumber, nrow =  statesNumber)
-  time[possible!=0] <- time0
+  time[unlist(lapply(1:max(possible), function(i) which(possible == i)))] <- time0
   time[possible==0] <- 99*to
-  
+
   minTimeState <- apply(time, 1, function(x) c(min(x), which.min(x)))
   kk = startingState
   path = rep(NA,statesNumber)
@@ -438,7 +438,7 @@ histH <- function(gf, statesNumber, parametric, startingState, absorbing, bl, to
   wmin = which.min(time)
   first <- possible[startingState, startingState+wmin]
   k = auxposition(possible, max(first))[2]  #current state of the patient
-  formerhistory[startingState+wmin-1,1:4] = c(first, mt, mt, k)
+  formerhistory[possible[startingState,startingState+1]+wmin-1,1:4] = c(first, mt, mt, k)
   lim = mt
   ######## loop over states...
   while(k %in% setdiff(startingState:statesNumber, absorbing) && lim <= to){
@@ -446,18 +446,18 @@ histH <- function(gf, statesNumber, parametric, startingState, absorbing, bl, to
     f =  gf[aux]
     par = match(intersect(aux,parametric),aux)  #those index of f (possible transition hazards corespond to parametric)
     npar <- (1:length(f))[!1:length(f)%in%par]
-    
+
     timesp  =  numeric(length(f))
     timesp[par] <- unlist(lapply(f[par], function(ff) samplerP(function(t) ff(t, history=formerhistory[,2], bl=bl), n=1)))
     timesp[npar] <- unlist(lapply(f[npar], function(ff) sampler(n=1, function(t) ff(t, history=formerhistory[,2], bl=bl),to=to)))
-    
+
     mt = min(timesp)
     wmin = which.min(timesp)
     auxmin <- aux[wmin]
-    
+
     lim = mt + formerhistory[max(formerhistory[,1]) ,3]
     k = auxposition(possible, max(auxmin))[2]
-    
+
     formerhistory[auxmin,1:4] = c(auxmin, mt, lim, k)
   }
   for(st in startingState:statesNumber){
@@ -613,7 +613,7 @@ cumulativeIncidence = function(object, times, M=100, stateNames = paste("State",
   if (class(object)=="ArtCohort") cohorts <- t(object@time.to.state)
   else cohorts <- t(object)
   statesNumber <- dim(cohorts)[1]
-  
+
   # Prediction interval:
   if (dim(cohorts)[2]>=1000) {
     dd <- data.frame(t(cohorts))
@@ -623,7 +623,7 @@ cumulativeIncidence = function(object, times, M=100, stateNames = paste("State",
     ppp <- NULL
     for (ciind in 1:M){
       cohorts <- t(dd[[ciind]][,1:statesNumber])
-      
+
       if (ncol(cohorts)==0) {
         inc[[ciind]] <- matrix(NA, ncol = nrow(cohorts), nrow = length(times))
       }
@@ -643,12 +643,12 @@ cumulativeIncidence = function(object, times, M=100, stateNames = paste("State",
     }
     ddd <- data.frame(ppp)
     ddd$times <- times
-    
+
     inc <- as.matrix(ddply(ddd, .(times), function(x) colMeans(x)))[, 1:statesNumber]
     lower <- as.matrix(ddply(ddd, .(times), function(x) apply(x, 2, function(y){quantile(y, .025)})))[, 1:statesNumber]
     upper <- as.matrix(ddply(ddd, .(times), function(x) apply(x, 2, function(y){quantile(y, .975)})))[, 1:statesNumber]
   }
-  
+
   else {
     if (ncol(cohorts)==0) {
       inc <- matrix(NA, ncol = nrow(cohorts), nrow = length(times))
@@ -668,11 +668,11 @@ cumulativeIncidence = function(object, times, M=100, stateNames = paste("State",
     lower <- matrix(NA, ncol = nrow(cohorts), nrow = length(times))
     upper <- matrix(NA, ncol = nrow(cohorts), nrow = length(times))
   }
-  
+
   dimnames(inc) <- list(paste("Time", times), stateNames)
   dimnames(lower) <- list(paste("Time", times), stateNames)
   dimnames(upper) <- list(paste("Time", times), stateNames)
-    
+
   pp = new("PosteriorProbabilities")
   pp@states = stateNames
   pp@times = times
@@ -820,7 +820,7 @@ simFunctions <-
   else{
     simpar <- matrix(aux1, nrow=cohortSize, ncol=length(aux1), byrow=TRUE)
   }
-  
+
   simpar = rbind(aux2, simpar)
   auxso = so[prov]
   simpar1 <- lapply(1:cohortSize, function(k) fold(simpar[k+1,], auxso))
@@ -852,32 +852,32 @@ simulateCohort <-
            initialState=rep(1, cohortSize),
            absorbing=transitionFunctions@states.number,
            to=100){
-    
+
     try(cohortSize <- as.integer(cohortSize))
     if (length(cohortSize) > 1)
       warning("cohortSize has length > 1 and only the first element will be used")
     cohortSize <- cohortSize[1]
-    
+
     try(to <- as.numeric(to))
     if (length(to) > 1)
       warning("to has length > 1 and only the first element will be used")
     to <- to[1]
-    
+
     statesNumber <- dim(transitionFunctions@list.matrix)[1]
-    
-    stopifnot(cohortSize>0, 
+
+    stopifnot(cohortSize>0,
               is.list(transitionFunctions@list.matrix),
               is.list(parameters@list.matrix),
               is.list(parameterCovariances@list.matrix),
               dim(transitionFunctions@list.matrix)[1]==dim(transitionFunctions@list.matrix)[2],
               identical(dim(transitionFunctions@list.matrix), dim(parameters@list.matrix)),
               identical(dim(parameters@list.matrix), dim(parameterCovariances@list.matrix)),
-              identical(dim(transitionFunctions@list.matrix), dim(timeToTransition)), 
+              identical(dim(transitionFunctions@list.matrix), dim(timeToTransition)),
               initialState %in% 1:statesNumber,
               absorbing %in% 1:statesNumber,
               length(initialState) %in% c(1, cohortSize)
               )
-      
+
     transitionFunction  =  transitionFunctions@list.matrix
     parameterCovariance =  parameterCovariances@list.matrix
     parameters.in =  parameters@list.matrix

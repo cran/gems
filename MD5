@@ -1,13 +1,13 @@
-b09efcba92e3a5773496e0d94e5354b1 *DESCRIPTION
+9910c1a9fb6cc36d4f4dd16106c76f19 *DESCRIPTION
 4660d5ea9c2fc42afc30019c6150f2d7 *NAMESPACE
-2658e7c922c5e265a6a171fe0de68fd4 *R/gems.r
-dae57c4c0f593eb7e2591149d74e1368 *changeLog
+1d8b6d9cc114bbc3124ba1b7af8b8f33 *R/gems.r
+3f416a0bcfce0dd61d28ed60728ebd38 *changeLog
 a3514b41963b406e17e074eadfeabecb *man/ArtCohort-class.Rd
 55f49c5c22ca26c2670142b6c7524b24 *man/PosteriorProbabilities-class.Rd
 22b3f2810269ca9e995e927a2ecbb05f *man/cumulativeIncidence.Rd
 0aa85453eefb56682e2c33e5173a9889 *man/generateHazardMatrix.Rd
 7e390db618cae32daa0450fe199f9517 *man/generateParameterCovarianceMatrix.Rd
 4c46daa47bea14505f6a69fd526a2df3 *man/generateParameterMatrix.Rd
-d55898c1ab70f07b9fa96375c4ae7141 *man/simulateCohort.Rd
+b5211566be5f8ef50d6f9a2d3bf4e966 *man/simulateCohort.Rd
 ef3bb689fe9cf17a4848cf71af5b4827 *man/transition.structure-class.Rd
 5d3e405d57496629152b70145ea25278 *man/transitionProbabilities.Rd
