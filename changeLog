@@ -1,6 +1,9 @@
 ﻿--------------------------
 ---- ChangeLog - gems ----
 --------------------------
+2014-01-30 Nello Blaser (version 0.9.4)
+	* Speed-up post-processing with data.table
+	* Fixed documentation error
 2013-07-08 Luisa Salazar Vizcaya (version 0.9.3)
 	* Increase speed (without uncertainty)
 	* Optional number of sampler steps for hazard function discretization

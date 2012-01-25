@@ -32,7 +32,9 @@ importFrom(plyr
 	, "."
 	, "ddply"
 )
-
+importFrom(data.table
+	, "data.table"
+)
 ## exports
 export(
 	simulateCohort

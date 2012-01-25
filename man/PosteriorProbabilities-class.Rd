@@ -3,6 +3,7 @@
 \docType{class}
 \alias{PosteriorProbabilities-class}
 \alias{[,PosteriorProbabilities-method}
+\alias{[,PosteriorProbabilities,ANY,ANY,ANY-method}
 \alias{plot,PosteriorProbabilities-method}
 \alias{head,PosteriorProbabilities-method}
 \alias{tail,PosteriorProbabilities-method}
