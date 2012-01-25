@@ -17,7 +17,9 @@ simulateCohort(transitionFunctions,
   baseline = matrix(NA,nrow = cohortSize), 
   initialState=rep(1, cohortSize),
   absorbing=transitionFunctions@states.number,
-  to = 100)
+  to = 100,
+  report.every = 100, 
+  sampler.steps = 1000)
 }
 
 \arguments{
@@ -49,6 +51,12 @@ simulateCohort(transitionFunctions,
   \item{to}{
   final time of the simulation.
 }
+  \item{report.every}{
+  a \code{numeric} to check progress of simulation.
+  }
+  \item{sampler.steps}{
+  a \code{numeric} indicating number of steps for discretization of hazard functions
+  }
 }
 
 \details{
