@@ -8,7 +8,7 @@
   Calculates the probabilities and prediction intervals after first state
 }
 \usage{
-transitionProbabilities(object, times, 
+transitionProbabilities(object, times, M=100,
   stateNames = paste("State", as.list(1:dim(cohorts)[1])))
 }
 
@@ -18,6 +18,9 @@ transitionProbabilities(object, times,
 }
   \item{times}{
   a time vector.
+}
+  \item{M}{
+  number of groups for calculating confidence intervals.
 }
   \item{stateNames}{
   a list with the names of states.
