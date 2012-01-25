@@ -1,7 +1,8 @@
-ad17fad36322bd5144ad43698b2c69ce *ChangeLog
-3639c1e2ddc0ad70ada22114c5ffbaa0 *DESCRIPTION
+986af3ea969fcb5343006368fc4a8023 *ChangeLog
+796c4bf6eb809a42e56260114c86baf7 *DESCRIPTION
 808cbbf65e215b15f83559f28a33bd07 *NAMESPACE
-cdb89b3c739f04c8fb2eb6b8ca91b10f *R/gems.r
+560ad5906658608c30c811b8fdd1d193 *R/gems.r
+bddb8bedc7bc7ec247a02b76a8368f1a *data/tavi.rda
 f16466d04a12e74bc37ea0587c7fae6d *man/ArtCohort-class.Rd
 c9e7c8e1d2f8021e9ec383dc37345c41 *man/PosteriorProbabilities-class.Rd
 22b3f2810269ca9e995e927a2ecbb05f *man/cumulativeIncidence.Rd
@@ -9,5 +10,6 @@ c9e7c8e1d2f8021e9ec383dc37345c41 *man/PosteriorProbabilities-class.Rd
 7e390db618cae32daa0450fe199f9517 *man/generateParameterCovarianceMatrix.Rd
 4c46daa47bea14505f6a69fd526a2df3 *man/generateParameterMatrix.Rd
 1cb57336d3df15152b273ccbbfcaa44c *man/simulateCohort.Rd
+f7e7c6a214ef34ae920f7edc22c21fa7 *man/tavi.Rd
 ef3bb689fe9cf17a4848cf71af5b4827 *man/transition.structure-class.Rd
 5d3e405d57496629152b70145ea25278 *man/transitionProbabilities.Rd

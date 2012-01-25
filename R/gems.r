@@ -411,14 +411,15 @@ histNoH <- function(gf, statesNumber, parametric, startingState, absorbing, bl, 
   # all possible transition times
   npar <- (1:length(gf))[!1:length(gf)%in%parametric]
   time0 <- rep(NA,length(gf))
-  time0[parametric] <- unlist(lapply(gf[parametric], function(ff) samplerP(function(t) ff(t, bl=bl), n=1)))
+  time0[parametric] <- unlist(lapply(gf[parametric], samplerP, n=1))
   time0[npar] <- unlist(lapply(gf[npar], function(ff) sampler(n=1, function(t) ff(t, bl=bl), to=to, length =  sampler.steps)))
   #times in the transition matrix
   time = matrix(ncol = statesNumber, nrow =  statesNumber)
   time[unlist(lapply(1:max(possible), function(i) which(possible == i)))] <- time0
   time[possible==0] <- 99*to
-  
+  #
   minTimeState <- apply(time, 1, function(x) c(min(x), which.min(x)))
+  minTimeState[2, minTimeState[2, ] < 1:ncol(minTimeState)] <- NA # bugfix
   kk = startingState
   path = rep(NA,statesNumber)
   path[startingState]<-0

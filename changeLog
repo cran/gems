@@ -1,6 +1,10 @@
 ﻿--------------------------
 ---- ChangeLog - gems ----
 --------------------------
+2014-05-15 Nello Blaser  (version 0.9.5)
+	* Added tavi data
+2014-03-11 Nello Blaser
+	* Bugfix (NA in startingState)
 2014-01-30 Nello Blaser (version 0.9.4)
 	* Speed-up post-processing with data.table
 	* Fixed documentation error
