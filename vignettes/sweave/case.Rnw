@@ -1,0 +1,248 @@
+% ----------------------------------------------------------------------
+% Author: Nello Blaser, ISPM, Uni Bern
+%         <nblaser@ispm.unibe.ch>
+% ----------------------------------------------------------------------
+% Last modified: 24.07.2014
+% ----------------------------------------------------------------------
+% use:
+%%% setwd("C:/Users/nblaser/Documents/Cohort Model/JSS manuscript/sweave")
+%%% Sweave("case.Rnw")
+%
+% Set global Sweave options:
+% - use R engine;
+% - do not create eps figures;
+% - create pdf figures;
+\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE}
+
+% Set further Sweave options:
+% - use prefix.string as prefix for \includegraphics and include
+%   the figure.
+\SweaveOpts{prefix=TRUE,prefix.string=PDF/Application,include=TRUE}
+
+% This should handle the size of the figures.
+% !!! NOT SURE EXACTLY HOW AND WHETHER IT WORKS !!!
+\setkeys{Gin}{width=.9\textwidth}
+
+% ----------------------------------------------------------------------
+% Initialise R session for this section
+<<preliminaries,echo=FALSE,results=verbatim>>=
+remove(list=ls())
+options(width=80,show.signif.stars=FALSE,prompt="R> ")
+if(!file.exists("./PDF/Application"))
+    dir.create("./PDF/Application",recursive=TRUE)
+pkgs2load <- c("gems", "mstate", "msm", "muhaz")
+invisible(sapply(pkgs2load, require, character.only=TRUE))
+set.seed(123)
+@
+
+% ----------------------------------------------------------------------
+\section[Case study]{Case study: Transcatheter aortic valve implantation}\label{cs}
+
+\subsection{Introduction}
+Calcific aortic stenosis is a degenerative disease characterized by progressive narrowing of the aortic valve, which compromises oxygenated blood output from the heart. Medical therapy as a sole treatment option has not improved survival among patients with symptomatic severe aortic stenosis. Surgical aortic valve replacement (SAVR) is the treatment of choice and the gold standard for aortic valve disease treatment. In the presence of serious co-morbidities, and in patients considered to be at high-risk for SAVR, transcatheter aortic valve implantation (TAVI) techniques offer less-invasive treatment of valvular aortic stenosis.  Older patients who have severe calcific aortic stenosis, characterized by the presence of co-morbidities and compromised left ventricular ejection fraction, have increased risk of complications from the surgical procedure itself. These high risk patients were managed medically until catheter-based treatment TAVI was introduced in 2002. During a TAVI implantation a bio-prosthetic valve is inserted and implanted within the diseased aortic valve through a catheter. The result of increased interest in this catheter-based approach is that this less invasive procedure is now used in patients with less severe disease \citep{Pilgrim2012}.
+
+\subsection{Statistical analysis}
+
+The \code{tavi} data set contains data on kidney injuries, bleeding complications and the combined endpoint of stroke or death for 194 patients. The variables \code{kidney, bleeding, death} are indicator variables that show if an event has occurred; the variables \code{kidney.dur, bleeding.dur, death.dur} are the times at which the events occurred or the patients were censored. 
+<<data,echo=TRUE,eval=TRUE,results=verbatim>>=
+  data("tavi")
+  head(tavi)
+@
+
+In the following discussion, the DAG depicted in Figure~\ref{fig:taviDAG} is assumed. Since no patients experience both kidney injury and bleeding complications, we assume these events to be mutually exclusive.
+\input{fig/taviDAG}
+
+We then create the transition matrix using the \pkg{mstate} package. According to the DAG the transition matrix is given by
+<<tmat,echo=TRUE,eval=TRUE,results=verbatim>>=
+  tmat <- transMat(x = list(c(2, 3, 4), c(4), c(4), c()), 
+                 names = c("TAVI", 
+                           "Kidney Injury", 
+                           "Bleeding", 
+                           "Stroke/Death"))
+  tmat
+@
+
+In order to estimate the transition-specific hazard functions, we prepare the data using the \pkg{mstate} package. We use \code{msprep} to get the data into long format, and \code{split} to split the data according to the transition. 
+<<mstavi,echo=TRUE,eval=TRUE,results=verbatim>>=
+  mstavi <- msprep(data = tavi, trans = tmat, 
+                 time = c(NA, "kidney.dur", "bleeding.dur", "death.dur"),
+                 status = c(NA, "kidney", "bleeding",  "death"))
+  head(mstavi)
+  mstavi$time[mstavi$time == 0] <- .Machine$double.eps
+  msplit <- split(mstavi, mstavi$trans)
+  head(msplit[[5]])
+@
+
+As a first step we fit an exponential distribution to all transition times. For each transition, we estimate the rate and the variance. 
+<<msexp, echo=TRUE, eval=TRUE, results=verbatim>>=
+  exp.fit <- sapply(msplit, function(x) 
+    summary(survreg(Surv(time, status) ~ 1, 
+                    data = x, 
+                    dist = "exponential")))
+  exp.coef <- unlist(exp.fit["coefficients", ])
+  exp.var <- unlist(exp.fit["var", ])
+@
+
+Next we specify the model, simulate from it and compare the simulated mortality to a Kaplan-Meier graph of mortality.
+<<sim.exp, echo=TRUE, eval=TRUE, results=verbatim>>=
+  states <- 4
+  maxtime <- max(mstavi$time)
+  ind <- which(!is.na(tmat), arr.ind = TRUE)
+
+  hm <- generateHazardMatrix(states)
+  for (i in 1:dim(ind)[1]){
+    hm[[ind[i, 1], ind[i, 2]]] <- "Weibull"
+  }
+  
+  par <- generateParameterMatrix(hm)
+  for (i in 1:dim(ind)[1]){
+    par[[ind[i, 1], ind[i, 2]]] <- list(shape = 1, 
+                                        scale = exp(exp.coef[i]))
+  }
+  
+  cov <- generateParameterCovarianceMatrix(par)
+  for (i in 1:dim(ind)[1]){
+    cov[[ind[i, 1], ind[i, 2]]] <- matrix(c(0, 0, 0, exp.var[i]), nrow=2)
+  }
+  
+  ds <- simulateCohort(transitionFunctions = hm, 
+                      parameters = par, 
+                      cohortSize = 100 * nrow(tavi), 
+                      parameterCovariances = cov,
+                      to = maxtime)
+  cinc <- cumulativeIncidence(ds, 0:maxtime, colnames(tmat), M = 100)
+@
+
+%<<expPlot,include=FALSE>>=
+%  plot(survfit( Surv(death.dur, death)~1, 
+%                data=tavi), 
+%       fun="event", xlim=c(0,maxtime), ylim=c(0,1), lwd=2)
+%  lines(survfit( Surv(toD, soD)~1), fun="event", col=2, lwd=2)
+%  legend(200, .8, c("Data", "Simulation"), lty=1, col=1:2, lwd=2)
+%@
+%
+%\begin{figure}
+%\begin{center}
+%<<label=expPlot,fig=TRUE,echo=FALSE>>=
+%<<expPlot>>
+%@
+%\end{center}
+%\caption{Kaplan-Meier of the data and exponential simulation}
+%\label{fig:expPlot}
+%\end{figure}
+
+Figure~\ref{fig:PWexpPlot} shows the overall mortality from the simulated cohort. 
+Because the purpose of this study is to illustrate the use and flexibility of the package, we split time into monthly intervals and calculate piecewise constant hazard functions using the \code{pehaz} function from the \pkg{muhaz} package. 
+%If the aim was to study TAVI in more detail,  we would instead consider each transition separately, and fit an appropriate parametric distribution.
+
+<<pexpStats, echo=TRUE, eval=TRUE, results=hide>>=
+  timeStep <- 30
+  pwexp <- sapply(msplit, function(x) pehaz(x$time,
+                                            x$status,
+                                            width = timeStep, 
+                                            min.time = 0,
+                                            max.time = max(mstavi$time)))
+  cuts <- pwexp["Cuts", ]
+  pwhazard <- pwexp["Hazard", ]
+@
+
+We parameterize the hazard functions with piecewise constant hazards and simulate again.
+<<pexpSim, echo=TRUE, eval=TRUE, results=verbatim>>=
+  hm2 <- generateHazardMatrix(states)
+  for (i in 1:dim(ind)[1]){
+    hm2[[ind[i, 1], ind[i, 2]]] <- function(t, rates) {
+      rates[t / timeStep + 1]
+    }
+  }
+  par2 <- generateParameterMatrix(hm2)
+  for (i in 1:dim(ind)[1]){
+    par2[[ind[i, 1], ind[i, 2]]] <- list(rates = pwhazard[[i]])
+  }
+  ds2 <- simulateCohort(transitionFunctions = hm2, 
+                        parameters = par2, 
+                        cohortSize = 100 * nrow(tavi), 
+                        to = maxtime)
+  cinc2 <- cumulativeIncidence(ds2, 0:maxtime, colnames(tmat), M = 100)
+@
+
+The plot function also admits an argument \code{states}, which can be used in order to only \code{plot} certain states as shown in the following example. 
+<<PWexpPlot,include=FALSE>>=
+  plot(cinc, states = 4, axes = FALSE, frame = TRUE, col = 2, 
+       xlab = "Time (in months)", main = "Mortality", ci = TRUE)
+  lines(survfit(Surv(death.dur, death) ~ 1, data = tavi), 
+        fun = "event", lwd = 2)
+  lines(survfit( Surv(death.dur, death)~1, data=tavi), 
+        fun="event", lwd=2, conf.int=TRUE, lty=2)
+  par(new = TRUE)
+  plot(cinc2, states = 4, axes = FALSE, frame = TRUE, col = 3, 
+       xlab = "", main = "", ci = TRUE)
+  axis(2); axis(4)
+  axis(1, at = (0:13*90)[0:6*2+1], labels = (0:13*3)[0:6*2+1])
+  legend(200, .8, c("Data", 
+                    "Simulation: exponential", 
+                    "Simulation: piecewise exponential"), 
+         lty = 1, col = c(1:3), lwd = 2)
+@
+
+\begin{figure}
+\begin{center}
+<<label=PWexpPlot,fig=TRUE,echo=FALSE>>=
+<<PWexpPlot>>
+@
+\end{center}
+\caption{Cumulative incidence with constant and piecewise constant transition-specific hazard functions.}
+\label{fig:PWexpPlot}
+\end{figure}
+
+%The second simulation fits the data well as shown in Figure~\ref{fig:PWexpPlot}. 
+%A different parametric survival function could also be used, but since we intend to demonstrate the advantages of the package \pkg{gems}, we will not elaborate on this. 
+Figure~\ref{fig:PWexpPlot} shows how the simulated cumulative incidence depends on the statistical model. The package \pkg{gems} admits the choice of any transition-specific hazard function. 
+We will now use the second model with piecewise constant hazard functions to estimate the effect of an intervention on mortality.
+%We are now satisfied with the fit and use the model to estimate the effect of an intervention.
+
+\subsection{Intervention modeling}
+Suppose there is a new intervention that dramatically reduces the probability of getting bleeding complications, and we are interested in the impact of this intervention on mortality. 
+For simplicity, we assume that the intervention reduces the transition-specific hazard of bleeding complications by $80\%$. Then 
+<<hazardIntervene, echo=TRUE, eval=TRUE, results=verbatim>>=
+  hm3 <- hm2
+  par3 <- par2
+  par3[[1, 3]]$rates <- par3[[1, 3]]$rates / 5
+  ds3 <- simulateCohort(transitionFunctions = hm3, 
+                        parameters = par3, 
+                        cohortSize = 100 * nrow(tavi), 
+                        to = maxtime)
+  cinc3 <- cumulativeIncidence(ds3, 0:maxtime, colnames(tmat), M = 100)
+@
+
+<<InterPlot,include=FALSE>>=
+  plot(cinc2, states = 4, axes = FALSE, frame = TRUE, col = 1, ci = TRUE, 
+       xlab = "Time (in months)", main = "Mortality")
+  par(new = TRUE)
+  plot(cinc3, states = 4, axes = FALSE, frame = TRUE, col = 2, ci = TRUE, 
+       xlab = "", main = "")
+  axis(2); axis(4)
+  axis(1, at = (0:13 * 90)[0:6*2 + 1], labels = (0:13 * 3)[0:6 * 2 + 1])
+  legend(200, .8, c("No intervention", "Intervention"), 
+         lty = 1, col = 1:2, lwd = 2)
+@
+
+\begin{figure}
+\begin{center}
+<<label=InterPlot,fig=TRUE,echo=FALSE>>=
+<<InterPlot>>
+@
+\end{center}
+\caption{Effect of reducing bleeding complications on mortality.}
+\label{fig:InterPlot}
+\end{figure}
+
+<<calcs, echo=FALSE, eval=TRUE, results=hide>>=
+  xx <- cinc2@probabilities[nrow(cinc2@probabilities), ncol(cinc2@probabilities)]
+  yy <- cinc3@probabilities[nrow(cinc3@probabilities), ncol(cinc3@probabilities)]
+  signifs <- 1
+  c1 <- round(xx * 100, signifs)
+  c2 <- round(yy * 100, signifs)
+  c3 <- round((xx - yy) / xx* 100, signifs)
+@
+
+Figure~\ref{fig:InterPlot} shows that reducing bleeding complications by $80\%$ decreases three-year mortality by $\Sexpr{c3}\%$ from $\Sexpr{c1}\%$ to $\Sexpr{c2}\%$.

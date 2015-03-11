@@ -1,0 +1,114 @@
+% ----------------------------------------------------------------------
+% Author: Nello Blaser, ISPM, Uni Bern
+%         <nblaser@ispm.unibe.ch>
+% ----------------------------------------------------------------------
+% Last modified: 27.01.2015
+% ----------------------------------------------------------------------
+
+%\VignetteIndexEntry{gems}
+
+%\documentclass[article]{jss}
+\documentclass[nojss,article,shortnames]{jss}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% almost as usual
+\author{Nello Blaser\thanks{The first two authors listed on the paper contributed equally to the development of \pkg{gems} and to the writing of this manuscript.}
+\\University of Bern \And
+				Luisa Salazar Vizcaya$^{\ast}$ \\ University of Bern \AND
+				Janne Estill \\ University of Bern \And
+				Cindy Zahnd \\ University of Bern \And
+				Bindu Kalesan \\ University of Bern \\ Columbia University \And
+				Matthias Egger \\ University of Bern \\ University of Cape Town \AND
+				Thomas Gsponer\thanks{The last two authors listed on the paper contributed equally to this manuscript.} \\ University of Bern \And
+	      Olivia Keiser$^{\dagger}$  \\ University of Bern}
+\title{\pkg{gems}: An \proglang{R} Package for Simulating 
+	from Disease Progression Models}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Nello Blaser, Luisa Salazar Vizcaya, et al.} %Janne Estill, Cindy Zahnd, Bindu Kalesan, Matthias Egger, Olivia Keiser, Thomas Gsponer} %% comma-separated
+
+\Plaintitle{gems: An R Package for Simulating 
+	from Disease Progression Models} %% without formatting
+\Shorttitle{Generalized Multistate Simulation Model} %% a short title (if necessary)
+
+%% an abstract and keywords
+\Abstract{
+Mathematical models of disease progression predict disease outcomes and are useful epidemiological tools for planners and evaluators of health interventions. The \proglang{R} package \pkg{gems} is a tool that simulates disease progression in patients and predicts the effect  of different interventions on patient outcome. Disease progression is represented by a series of events (e.g., diagnosis, treatment and death), displayed in a directed acyclic graph. The vertices correspond to disease states and the directed edges represent events. The package \pkg{gems} allows simulations based on a generalized multistate model that can be described by a directed acyclic graph with continuous transition-specific hazard functions. The user can specify an arbitrary hazard function and its parameters. The model includes parameter uncertainty, does not need to be a Markov model, and may take the history of previous events into account. Applications are not limited to the medical field and extend to other areas where multistate simulation is of interest. We provide a technical explanation of the multistate models used by \pkg{gems}, explain the functions of \pkg{gems} and their arguments, and show a sample application. This manuscript was published in the Journal of Statistical Software \cite{jss:gems}.
+}
+
+\Keywords{Monte Carlo simulation, multistate model, \proglang{R}, survival analysis, prediction, compartmental model}
+\Plainkeywords{Monte Carlo simulation, multistate model, R, survival analysis, prediction, compartmental model}
+%\Plainkeywords{keywords, comma-separated, not capitalized, Java} %% without formatting
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Nello Blaser\\
+  Institute of Social and Preventive Medicine\\
+  University of Bern\\
+  3012 Bern, Switzerland\\
+  E-mail: \email{nblaser@ispm.unibe.ch} \\[1mm]
+
+  Luisa Salazar Vizcaya\\
+  Institute of Social and Preventive Medicine\\
+  University of Bern\\
+  3012 Bern, Switzerland\\
+  E-mail: \email{lsalazar@ispm.unibe.ch}\\
+  }
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage[english]{babel}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{verbatim} 
+\usepackage{xcolor,pict2e}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,calc,positioning,shapes.geometric,shapes.symbols,shapes.misc}
+\graphicspath{{fig//}{sweave//}}
+
+%% convenient commands
+\newcommand{\given}{\,\vert\,}
+\newcommand{\prob}[1]{\Prob\left[#1\right]}
+\newcommand{\1}[1]{1_{\left\{#1\right\}}}
+\newcommand{\rightgiven}{\,\right\vert\,}
+\newcommand{\where}{\;\:\!\vert\;}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}	
+
+\begin{document}
+%% include your article here, just as usual
+%% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
+
+%% input files
+\input{script/introduction}
+\input{script/technical}
+\input{sweave/use}
+\input{sweave/case}
+\input{script/conclusion}
+\input{script/acknowledgments}
+
+%\bibliographystyle{jss}
+\bibliography{lib/myrefs}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "gems"
+%%% End:

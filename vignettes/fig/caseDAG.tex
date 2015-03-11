@@ -1,0 +1,38 @@
+\begin{figure}[htb!] 
+		\centering
+		\setlength{\unitlength}{2mm}
+		\begin{picture}(50,20)(5,10)
+		
+		% Stages before Switch
+		\put(10, 15){\circle{7.5}}
+		\put(7.8,13.8){HIV+}
+		
+		\put(30, 25){\circle{7.5}}
+		\put(27.8,23.8){ART}
+%		\put(30, 5){\circle{7.5}}
+%		\put(27.8,3.8){$E_3$}
+	
+		\put(50, 15){\circle{7.5}}
+		\put(47.8,13.8){Dead}
+	
+		% Transitions
+		\put(13.35, 16.68){\vector(2,1){13.29}}
+%		\put(13.35, 13.32){\vector(2,-1){13.29}}
+		
+		\put(13.75, 15){\vector(1,0){32.5}}
+	
+%		\put(33.35, 6.68){\vector(2,1){13.29}}
+		\put(33.35, 23.32){\vector(2,-1){13.29}}
+		
+		% Hazards
+		\put(18, 23){\text{$h_{12}(t)$}}
+		\put(38, 23){\text{$h_{23}(t)$}}
+		
+		\put(27.8, 16){\text{$h_{13}(t)$}}
+
+%		\put(18, 5.5){\text{$h_{13}$}}
+%		\put(38, 5.5){\text{$h_{34}$}}
+	
+		\end{picture}
+		\caption[Simple DAG]{\label{fig:caseDAG} DAG for HIV treatment initiation.}
+\end{figure}

@@ -1,0 +1,11 @@
+%--------------------------------------------------------------------------------
+% Conclusion
+%--------------------------------------------------------------------------------
+\section{Conclusion} \label{conc}
+In this paper we have presented the \proglang{R} package \pkg{gems}, which allows simulation from a directed acyclic multistate model. The \proglang{R} package \pkg{gems} is a flexible tool for investigating and evaluating health interventions. We have given detailed examples of the use of each function of \pkg{gems}, and an example of its use to evaluate the effect of reduced bleeding complications in TAVI patients on mortality. 
+
+Several packages estimate and simulate Markov models, but we are not aware of any other packages that allow simulation from a multistate model with arbitrary transition-specific hazard functions. This flexibility in hazard functions improves its fit to data and allows to more accurately estimate the effects of different interventions. This package's inclusion of history-dependent transitions is also a major improvement on many traditional model structures. 
+
+The \pkg{gems} package has some limitations, including the fact that a DAG is required. Sometimes it is useful to have models in which patients can return to a previous state. If this feature is not frequently required, the problem can be resolved by repeating the state in a DAG. Otherwise a different model structure is needed. A further limitation is that higher flexibility requires more intensive computation, compared to traditional models. Longitudinal processes could be incorporated in a joint model, and evaluations of the artificial cohorts could be further automated in future expansions. 
+
+The \pkg{gems} package has useful functions for simulating hypothetical cohorts of patients based on a multistate model with general transition-specific hazard functions, and is a flexible and user-friendly tool for planning and evaluating public-health interventions.

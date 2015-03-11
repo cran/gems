@@ -1,0 +1,73 @@
+%--------------------------------------------------------------------------------
+% Technical description
+%--------------------------------------------------------------------------------
+\section[Technical description]{Technical description of the simulation model}\label{tech}
+We describe a directed acyclic multistate model and the algorithm used in \pkg{gems} to simulate from it. For a general introduction to multistate models, see \citet{Putter2007}.
+
+\subsection[Multistate Model]{General setup of the multistate model}\label{msm}
+A multistate model consists of a set of states and the transitions between them. The states can be divided into three groups: initial states, intermediate states and absorbing states. \pkg{gems} only considers multistate models without loops, that is models, which can be written  as a directed acyclic graph (DAG) \citep{Pearl2009}. A DAG consists of states and the directed edges that connect them, so that no sequence of directed edges can connect back to a previous state.
+
+Consider a directed acyclic multistate model with $n$ states $E_1, \dots, E_n$, where a transition from state $E_i$ to state $E_j$ is only possible if $i<j$. Let $\left(X_t\right)_{t\geq 0}$ be the stochastic process that describes the progression through the different states. It is an $\mathcal{E} = \{E_1, \dots, E_n\}$-valued jump process with jump times given by
+\begin{align} \label{eqn:Si}
+	S_i = \inf \left\{ t \geq 0 \where X_t = E_i \right\}
+	% 	X_{S_i} &= E_i
+\end{align}
+for states $E_i$ that are visited, and $S_i=\infty$ otherwise. Transition times to state $E_j$ from the previous state are defined by $T_j=S_j-S_{\max{\{k \where k<j, S_k<\infty\}}}$, where $S_0=0$ by convention. 
+
+The entire process is determined by transition times $T_j$ to state $E_j$, described by transition-specific hazard functions $h_{ij}$ as 
+\begin{align} \label{eqn:Tij}
+	T_{ij} &\sim  F_{ij}(t) = 1 - \exp\left\{ -\int_0^t h_{ij}(u) \, du \right\}, \\
+	T_j &= \min_{i \in \{1, \dots j-1 \;\vert\; T_i<\infty\}} T_{ij}, % \left\{ T_{ij} \right\} 
+\end{align}
+where $F_{ij}$ is the cumulative distribution function of the transition time from state $E_i$ to state $E_j$. See Figure~\ref{fig:dag4haz} for a graphical representation of these hazard functions and transition times. Unless all hazards are constant, $X$ does not have a Markovian structure. 
+
+\subsubsection{Hazards and transition probabilities} \label{sec:hazards}
+
+Consider the relatively simple multistate model described in the DAG in Figure~\ref{fig:dag4haz}.
+\input{fig/dag4haz}
+
+This exemplary model consists of an initial state $E_1$, two intermediate states $E_2$, $E_3$ and one absorbing state $E_4$. The transition probabilities from state $E_i$ at time $s$ to state $E_j$ at time $t$
+\begin{equation} \label{eqn:pij}
+	p_{ij}(s,t)=\prob{X_t=E_j \given X_s=E_i}, \hspace{2em} \text{for $s\leq t$}
+\end{equation}
+can then be calculated from the transition-specific hazard functions as follows. 
+ 
+The probabilities from state $E_4$ are $p_{44}(s,t)=1$ and $p_{4j}(s,t)=0$ for all $j\neq 4$. 
+
+From states $E_2,E_3$, the only two possibilities are to remain in the current state or move to state $E_4$, so the transition probabilities are
+\begin{align} \label{eqn:pij_ex23}
+	p_{ii}(s,t)&=\exp\left\{-\int_{s-S_i}^{t-S_i} h_{i4}(u) \, du \right\}, &\text{for $i\in\{2,3\}$}, \\
+	p_{i4}(s,t)&=1-\exp\left\{-\int_{s-S_i}^{t-S_i} h_{i4}(u) \, du \right\}, &\text{for $i\in\{2,3\}$}, \\
+%	p_{ii}(s,t)&=\prob{X_t=E_i \given X_s=E_i}=\exp\left\{-\int_{s-S_i}^{t-S_i} h_{i4}(u) \, du \right\}, &\text{for $i\in\{2,3\}$}, \\
+%	p_{i4}(s,t)&=\prob{X_t=E_4 \given X_s=E_i}=1-\exp\left\{-\int_{s-S_i}^{t-S_i} h_{i4}(u) \, du \right\}, &\text{for $i\in\{2,3\}$}, \\
+	p_{ij}(s,t)&=0, &\text{for $i\in\{2,3\}$, $j\not\in\{i,4\}$}.
+\end{align}
+
+The transition probabilities from the initial state are already difficult to solve analytically. Assuming $S_1=0$, the transition probabilities can be calculated from the integrals
+\begin{align} \label{eqn:pij_ex1}
+	p_{11}(s,t)&=\exp\left\{-\int_s^t h_{12}(u)\,du -\int_s^t h_{13}(u) \, du -\int_s^t h_{14}(u) \, du\right\}, \\
+	p_{12}(s,t)&=\int_s^t p_{11}(s,u)h_{12}(u)p_{22}(u,t) \, du, \\
+	p_{13}(s,t)&=\int_s^t p_{11}(s,u)h_{13}(u)p_{33}(u,t) \, du, \\
+	p_{14}(s,t)&=1-p_{11}(s,t)-p_{12}(s,t)-p_{13}(s,t) .%\\
+%	&=\int_s^t p_{11}(s,u)h_{14}(u) \, du + 
+%	\sum_{i=2}^3
+%	\int_{s\leq u \leq v \leq t} p_{11}(s,u) h_{1i}(u) p_{ii}(u,v) h_{i4}(v-u) p_{44}(v,t) du dv.
+\end{align}
+
+Intuitively, these formulas express that the process $X$ remains in state $E_1$ from time $s$ to time $u$. Then it moves to state $E_2$ or $E_3$ respectively, where it remains until time $t$. The transition probabilities $p_{12}$ and $p_{13}$ can then be calculated as the integral over $u$. These integrals become increasingly difficult to solve when there are more states, and they cannot usually be solved analytically. The \pkg{gems} package uses Monte Carlo methods to simulate the transition times associated to those probabilities.
+
+\subsection[Simulation]{Simulating from hazard functions}\label{sim}
+In this Section we describe the methods used in the package \pkg{gems} to simulate from a transition-specific hazard function for one agent. For each state $E_i$, all transition-specific hazard functions and their parameters must be specified. For instance, an exponentially distributed transition with mean $\mu=2$ can be specified as a constant function $h(t)=\frac{1}{\mu}$ with parameter $\mu=2$, or equivalently if specifying $h(t)=r$ with parameter $r=\frac{1}{2}$. For the description in this Section, the choice of parameterization is arbitrary, but it will be relevant in Section \ref{unc} where we consider parameter uncertainty.
+
+It is possible to simulate the times $T_{ik}$ from the hazard functions, as explained below. By taking the minimum over all $k$, we get the transition time $T_j$, and the corresponding state $E_j$. To simulate $X$, we therefore start by simulating from the initial state $T_{1k}$ and calculate the first transition time by taking the minimum. Then we continue the simulation from the corresponding state $E_j$. This procedure is iterated until an absorbing state is reached, at which point the simulation ends. 
+
+In order to simulate from a hazard function, we approximate the specified hazard function $h(t)$ by a piecewise constant function $h_{pc}(t)$. Then we use the \code{rpexp} function of the \pkg{msm} package \citep{pkg:msm} to simulate from the piecewise constant approximation of the hazard function $h_{pc}(t)$. The \code{rpexp} function generates random variables from an exponential distribution with piecewise constant rates.
+
+To calculate the transition probabilities from the initial state at time $t=0$, the process $X$ is simulated for $N$ agents (i.e., patients in the context of a cohort). At each time point the proportion of simulated patients that are in any state at that time is calculated. For large enough $N$ these proportions approximate the transition probabilities from the initial state at time $t=0$. 
+
+\subsection[Uncertainty]{Including uncertainty into the multistate model}\label{unc}
+The exact parameters of transition-specific hazard functions are often not known. This uncertainty should thus be included in the model's parameter values. Parameters estimated from data are often asymptotically normally distributed for a suitable parameterization. We therefore included parameter uncertainty in the model by sampling the parameters of the transition-specific hazard functions from a multivariate normal distribution. Therefore the transition-specific hazard functions need to be parameterized so that parameters are multivariate normally distributed.
+
+For each simulated patient, all parameters are first drawn from the specified distribution. Then the simulation for this patient is performed, as described in Section~\ref{sim}. This procedure allows the direct inclusion of uncertainty in the estimated parameters into the model, and obtains confidence intervals in the statistical analyses of the hypothetical cohorts. These confidence intervals reflect both sampling and parameter uncertainty. 
+
+In order to include uncertainties in the transition probabilities, the $N$ simulations are split into $M$ groups. Then the above-mentioned proportions for each of these groups is calculated. Finally, the 2.5\% and 97.5\% quantiles are computed to get a 95\% confidence interval for the transition probabilities at each time point. This procedure requires $N$ to be fairly large.

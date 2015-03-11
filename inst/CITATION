@@ -1,0 +1,26 @@
+citHeader("To cite gems in publications use:")
+
+citEntry(entry = "Article",
+  title        = "{gems}: An {R} Package for Simulating from Disease Progression Models",
+  author       = personList(as.person("Nello Blaser"),
+                   person("Luisa", "Salazar Vizcaya"),
+                   as.person("Janne Estill"),
+                   as.person("Cindy Zahnd"),
+                   as.person("Bindu Kalesan"),
+                   as.person("Matthias Egger"),
+                   as.person("Olivia Keiser"),
+                   as.person("Thomas Gsponer")),
+  journal      = "Journal of Statistical Software",
+  year         = "2015",
+  volume       = "64",
+  number       = "10",
+  pages        = "1--22",
+  url          = "http://www.jstatsoft.org/v64/i10/",
+
+  textVersion  =
+  paste("Nello Blaser, Luisa Salazar Vizcaya, Janne Estill, Cindy Zahnd, Bindu Kalesan, Matthias Egger, Olivia Keiser, Thomas Gsponer (2015).",
+        "gems: An R Package for Simulating from Disease Progression Models.",
+        "Journal of Statistical Software, 64(10), 1-22.",
+        "URL http://www.jstatsoft.org/v64/i10/.")
+)
+

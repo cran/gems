@@ -1,0 +1,23 @@
+%--------------------------------------------------------------------------------
+% Introduction
+%--------------------------------------------------------------------------------
+\section[Introduction]{Introduction}\label{intro}
+
+We present a simulation algorithm and the \proglang{R} package \pkg{gems}  \citep{pkg:gems} for simulating from a multistate model with arbitrary transition-specific hazard functions.
+
+% Disease progression models
+In epidemiology, mathematical models of disease progression are useful for predicting disease outcomes and for planning and evaluating interventions \citep{Garnett2011}. Disease progression is often characterized by a series of events, such as diagnosis, treatment and death. From this characterization, disease progression can be displayed in a directed acyclic graph (DAG) \citep{Pearl2009}, where disease states are denoted by vertices and the directed edges connecting them correspond to the events.
+
+% Non-exponential times
+Traditional compartmental models of infectious diseases assume that transition times between the different stages of a disease are exponentially distributed \citep{Anderson1992}. The use of exponential transition times has the advantage that models can be formulated deterministically with ordinary differential equations. Exponential times can also be simulated using the Gillespie algorithm \citep{Gillespie1977}. However, the distribution of transition times between states is often not exponential \citep{Lloyd2001}. Although it is possible to divide states into substates, so that an exponential transition-specific hazard fits the data for those substates, this approach is inflexible. Typical model structures using non-exponential transition times are agent-based stochastic simulation models \citep{Estill2012, Phillips2011}. For instance one study used history-dependent Weibull distributed transition times to investigate the effect on HIV transmission of bringing patients lost to follow-up back into care \citep{Estill2014}. This study found that 116 tracing efforts were needed to prevent one new infection. Agent-based models usually apply to one specific disease and include a limited number of interventions. We are not aware of any agent-based model structure that can be applied simultaneously to different diseases and interventions. We therefore propose a more flexible simulation algorithm that can simulate from any DAG.
+
+% gems
+We developed a multistate model that allows disease progression to be monitored in a cohort of individual patients, and takes into account the history of previous events. The \proglang{R} package \pkg{gems} allows simulation from a directed acyclic multistate model with general transition-specific hazard functions. The package simplifies definition of the multistate model, its relevant transition-specific functions, its parameters, and their uncertainty. It also calculates transition probabilities and cumulative incidences, and thus facilitates analysis of the simulated cohorts.
+The \proglang{R} package \pkg{gems} is used for simulation and not parameterization of multistate models. To parameterize the transition-specific hazard functions, the \proglang{R} packages \pkg{survival} \citep{pkg:survival}, \pkg{mstate} \citep{pkg:mstate} and \pkg{muhaz} \citep{pkg:muhaz} can be used. 
+
+% real-world examples
+%The package \pkg{gems} has been successfully applied to investigate the effect on HIV transmission of bringing patients lost to follow-up back into care \citep{Estill2014}. Cohorts of patients starting antiretroviral therapy who either remained in care or discontinued treatment were simulated. Then patients lost to follow-up were traced to bring them back to care. The study found that 116 tracing efforts were needed to prevent one new infection. 
+
+% Paper structure
+In Section~\ref{tech} we present a mathematical description of the multistate model. We present the simulation from this model and demonstrate the inclusion of parameter uncertainty. In Section~\ref{use}, we describe the use of \pkg{gems} in detail, providing explanations for and examples of all the important package functions. In Section~\ref{cs} we present a case study in cardiology.  Finally, in Section~\ref{conc}, we discuss the strengths and limitations of the package.
+

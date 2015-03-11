@@ -1,0 +1,120 @@
+\begin{figure}[htb!] 
+		\centering
+		\setlength{\unitlength}{1mm}
+		\begin{picture}(130,40)(5,0)
+		
+		% panels
+		\put(5, 35){\text{\large \textbf{A}}}
+		\put(85, 35){\text{\large \textbf{B}}}
+		
+		%%% Panel A
+		% Stages before Switch
+		\put(10, 15){\circle{7.5}}
+		\put(7.8,13.8){$E_1$}
+		
+		\put(30, 25){\circle{7.5}}
+		\put(27.8,23.8){$E_2$}
+		\put(30, 5){\circle{7.5}}
+		\put(27.8,3.8){$E_3$}
+	
+		\put(50, 15){\circle{7.5}}
+		\put(47.8,13.8){$E_4$}
+	
+		% Transitions
+		\put(13.35, 16.68){\vector(2,1){13.29}}
+		\put(13.35, 13.32){\vector(2,-1){13.29}}
+		
+		\put(13.75, 15){\vector(1,0){32.5}}
+	
+		\put(33.35, 6.68){\vector(2,1){13.29}}
+		\put(33.35, 23.32){\vector(2,-1){13.29}}
+		
+		% Hazards
+		\put(18, 23){\text{$h_{12}$}}
+		\put(38, 23){\text{$h_{24}$}}
+		
+		\put(27.8, 16){\text{$h_{14}$}}
+
+		\put(18, 5.5){\text{$h_{13}$}}
+		\put(38, 5.5){\text{$h_{34}$}}
+		
+		
+		%%% Panel B
+		% filled circles
+		\definecolor{x11gray}{rgb}{0.85, 0.85, 0.85}
+		\color{x11gray}
+		\put(90, 15){\circle*{7.5}}		
+		\put(110, 5){\circle*{7.5}}
+		\put(130, 15){\circle*{7.5}}
+		\color{black}
+		
+		% Stages before Switch
+		\put(90, 15){\circle{7.5}}
+		\put(87.8,13.8){$E_1$}
+		
+		\put(110, 25){\circle{7.5}}
+		\put(107.8,23.8){$E_2$}
+		\put(110, 5){\circle{7.5}}
+		\put(107.8,3.8){$E_3$}
+	
+		\put(130, 15){\circle{7.5}}
+		\put(127.8,13.8){$E_4$}
+	
+		% Transitions
+		\color{blue}
+		%\put(93.35, 16.68){\vector(2,1){13.29}}
+		
+		\put(93.35, 16.68){\line(2,1){1}}
+		\put(95.35, 17.68){\line(2,1){1}}
+		\put(97.35, 18.68){\line(2,1){1}}
+		\put(99.35, 19.68){\line(2,1){1}}
+		
+		\put(101.35, 20.68){\line(2,1){1}}
+		\put(103.35, 21.68){\line(2,1){1}}
+		\put(105.35, 22.68){\vector(2,1){1.29}}
+
+		
+		\color{red}
+		\put(93.35, 13.32){\vector(2,-1){13.29}}
+		
+		\color{blue}
+		\put(93.75, 15){\line(1,0){1}}
+		\put(95.75, 15){\line(1,0){1}}
+		\put(97.75, 15){\line(1,0){1}}
+		\put(99.75, 15){\line(1,0){1}}
+		\put(101.75, 15){\line(1,0){1}}
+		\put(103.75, 15){\line(1,0){1}}
+		\put(105.75, 15){\line(1,0){1}}
+		\put(107.75, 15){\line(1,0){1}}
+		\put(109.75, 15){\line(1,0){1}}
+		\put(111.75, 15){\line(1,0){1}}
+		\put(113.75, 15){\line(1,0){1}}
+		\put(115.75, 15){\line(1,0){1}}
+		\put(117.75, 15){\line(1,0){1}}
+		\put(119.75, 15){\line(1,0){1}}
+		\put(121.75, 15){\line(1,0){1}}
+		\put(123.75, 15){\line(1,0){1}}
+		\put(125.75, 15){\vector(1,0){.5}}
+				
+		\color{red}
+		\put(113.35, 6.68){\vector(2,1){13.29}}
+		%\put(33.35, 23.32){\vector(2,-1){13.29}}
+		
+		% Hazards
+		\color{blue}
+		\put(98, 23){\text{$T_{12}$}}
+		%\put(38, 23){\text{$T_{24}$}}
+		\put(107.8, 16){\text{$T_{14}$}}
+		
+    \color{red}
+		\put(88, 5.5){\text{$T_3=T_{13}$}}
+		\put(118, 5.5){\text{$T_4=T_{34}$}}
+		
+		\color{black}
+		\put(82.8,20.8){\text{$T_1=0$}}
+		\put(102.8,30.8){\text{$T_3=\infty$}}
+		
+		\color{black}
+		\end{picture}
+		\caption[Sample DAG]{\label{fig:dag4haz} Sample DAG of states and transitions. Panel A shows the states and transition hazards. Panel B shows the potential transition times $T_{ij}$ and the transition times $T_j$ of a simulation where $T_{13}< T_{12}$. The red solid lines depict the path taken in this particular simulation and the gray circles represent the states visited by the individual. The blue dashed lines represent the potential transitions that never occurred.}
+\end{figure}

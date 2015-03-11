@@ -1,0 +1,77 @@
+% Define block styles
+\tikzstyle{decision} = [diamond, draw, fill=blue!20, aspect=2.5, 
+    text width=4.5em, text badly centered, inner sep=0pt]
+    
+\tikzstyle{stop} = [rectangle, draw, fill=blue!20, text width=5em, text centered, 
+    rounded corners, minimum height=4em]
+    
+\tikzstyle{block} = [rectangle, draw, fill=blue!20, 
+    text width=5em, text centered, minimum height=4em]
+          
+\tikzstyle{input} = [trapezium, trapezium left angle=70, trapezium right angle=-70, draw, fill=blue!20, 
+    text width=5em, text centered, minimum height=4em]
+    
+\tikzstyle{line} = [draw, -latex']
+
+\tikzstyle{start} = [draw, ellipse,fill=blue!20, node distance=3cm,
+    minimum height=4em]
+    
+\tikzstyle{colcode} = [draw, circle, node distance=2cm, minimum height=4em]
+    
+\begin{figure}%
+\begin{tikzpicture}[node distance = 2cm, auto]
+    % Place nodes
+    \node [start] (start) {Load gems};
+    \node [input, below of=start, fill=green!20] (states) {Specify number of states};
+    
+    \node [block, below of=states, fill=green!20] (hazmat) {Generate hazard matrix};
+    \node [input, below of=hazmat, fill=green!20] (haz) {Specify hazard functions};
+    
+    \node [block, below of=haz, fill=green!20] (parmat) {Generate parameter matrix};
+    \node [input, below of=parmat, fill=green!20] (par) {Specify model parameters};
+    
+    \node [decision, below of=par, fill=yellow!20] (uncertain) {Model uncertainty?};
+    \node [block, right of=uncertain, node distance=5cm, fill=yellow!20] (covmat) {Generate covariance matrix};
+    \node [input, right of=covmat, node distance=5cm, fill=yellow!20] (cov) {Specify parameter covariances};
+    
+    \node [decision, below of=uncertain, , fill=orange!20] (baseline) {Include baseline?};
+    \node [input, right of=baseline, node distance=5cm, fill=orange!20] (bl) {Specify characteristics};
+    
+    \node [block, below of=baseline, fill=red!20] (sim) {Simulate cohort};
+    \node [stop, below of=sim] (end) {Analyse cohort};
+%    % Draw edges
+    \path [line] (start) -- (states);
+    \path [line] (states) -- (hazmat);
+    \path [line] (hazmat) -- (haz);
+    \path [line] (haz) -- (parmat);
+    \path [line] (parmat) -- (par);
+    \path [line] (par) -- (uncertain);
+    \path [line] (uncertain) -- node {yes} (covmat);
+    \path [line] (covmat) -- (cov);
+    \path [line] (uncertain) -- node {no}(baseline);
+    \path [line] (baseline) -- node {yes} (bl);
+    \path [line] (baseline) -- node {no}  (sim);
+    \path [line] (sim) -- (end);
+    % 
+    \path [line] (bl) |- (sim);
+    \path [line] (cov) |- ([yshift=1.72cm, xshift=0.9cm] baseline.south)
+                       -- ([yshift=1.09cm, xshift=0.9cm] baseline.south);
+                       
+		% color code
+		\node [colcode, below of=end, fill=blue!20, node distance=3cm] (blue) {\tiny Other};
+		\node [colcode, right of=blue, fill=green!20] (green) {\tiny Section 3.1};
+		\node [colcode, right of=green, fill=yellow!20] (yellow) {\tiny Section 3.3};
+		\node [colcode, right of=yellow, fill=orange!20] (orange) {\tiny Section 3.4};
+		\node [colcode, right of=orange, fill=red!20] (red) {\tiny Section 3.2};
+		% shape code
+%		 \node [start, below of=blue, fill=white] (start.shape) {\tiny Start};
+%		 \node [block, right of=start.shape, fill=white] (block.shape) {\tiny Process};
+%		 \node [input, right of=block.shape, fill=white, minimum height=1em] (input.shape) {\tiny Input};
+%		 \node [decision, right of=input.shape, fill=white] (decision.shape) {\tiny Decision};
+%		 \node [stop, right of=decision.shape, fill=white] (stop.shape) {\tiny Stop};
+		 
+		
+\end{tikzpicture}
+\caption{Flow chart indicating the steps users should take to simulate cohorts. The colors indicate where more detailed information is available. The parallelograms represent that user input is required, the rectangles represent that a process of \pkg{gems} performs this step and the diamonds represent user decisions.}%
+\label{fig:flow}%
+\end{figure}
