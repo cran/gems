@@ -201,7 +201,7 @@ setMethod("plot", "PosteriorProbabilities", function(x, ci=FALSE, main = paste(x
   if (ci){
     plotPrevalence(x@times, x@probabilities, x@states, lower=x@lower, upper=x@upper, main=main, states=states,
                    lwd=lwd, col=col, lty=lty, xlab=xlab, ylab=ylab, ...)
-    if (sum(complete.cases(x@lower))==0) {
+    if (sum(stats::complete.cases(x@lower))==0) {
       warning("Too few simulations for prediction intervals")
     }
     graphics::par(mfrow=c(1,1))
@@ -220,10 +220,10 @@ setMethod( "update", "ArtCohort", function(object, newsize, addbaseline=matrix(N
   else parameterCovariance0 = object@parametersCovariances
   aux1 =
     simulateCohort(
-      transitionFunction = object@transitionFunctions,
+      transitionFunctions = object@transitionFunctions,
       parameters = object@parameters,
       cohortSize = newsize - object@size ,
-      parameterCovariance = parameterCovariance0,
+      parameterCovariances = parameterCovariance0,
       timeToTransition= object@timeToTransition,
       baseline = addbaseline,
       initialState=newInitialStates,
@@ -277,6 +277,7 @@ setMethod("print", "transition.structure", function(x){
   print(mchar)
 })
 
+#' @importFrom methods getSlots
 #' @rdname ArtCohort
 setMethod( "summary", "ArtCohort", function(object){
   summ <- matrix(list(
@@ -290,7 +291,7 @@ setMethod( "summary", "ArtCohort", function(object){
     (object@transitionFunctions),
     (object@time.to.state)),9,2)
   
-  aux2  <-  getSlots("ArtCohort")
+  aux2  <-  methods::getSlots("ArtCohort")
   summ[,2] <-  noquote(aux2)
   colnames(summ) <- c("Mode", "Class")
   rownames(summ) <- names(aux2)
@@ -304,10 +305,10 @@ setMethod( "summary", "ArtCohort", function(object){
   aux3 <- unlist(apply(object@time.to.state, 2, function(x) length(which(is.na(x) == 0))))
   
   message("
-Number of patients entering each state: ")
+          Number of patients entering each state: ")
   print(aux3)
   message("
-object and events: ")
+          object and events: ")
   summ.all
 })
 
@@ -355,7 +356,7 @@ createCohorts <-
       if (length(hazardf[[tr]]) > 0) {
         if (!is.function(hazardf[[tr]])) {
           if (!hazardf[[tr]] %in% c("Weibull", "multWeibull", "Exponential", "impossible") &&
-                !is.na(hazardf[[tr]]))
+              !is.na(hazardf[[tr]]))
             try(hazardf[[tr]] <- as.function(hazardf[[tr]]))
         }
       }
@@ -384,7 +385,7 @@ createCohorts <-
         if (historyl == FALSE)
           hazardf[[i]] = function(t, bl) 99 * to
         else hazardf[[i]] = function(t, history, bl) 99 *
-          to
+            to
       }
     }
     parametric = numeric()
@@ -628,16 +629,19 @@ histNoH <- function(gf, statesNumber, parametric, startingState, absorbing, bl, 
   time = matrix(ncol = statesNumber, nrow =  statesNumber)
   time[unlist(lapply(1:max(possible), function(i) which(possible == i)))] <- time0
   time[possible==0] <- 99*to
-  #
+  # create spell-history of patient (glue together times of realized transitions)
   minTimeState <- apply(time, 1, function(x) c(min(x), which.min(x)))
-  minTimeState[2, minTimeState[2, ] < 1:ncol(minTimeState)] <- NA # bugfix
-  kk = startingState
+  minTimeState[2, minTimeState[2, ] < 1:ncol(minTimeState)] <- NA # bugfix 
+  #gives 2xstates matrix with first line containing lengths of spells and second line the spell to where transition goes.
   path = rep(NA,statesNumber)
-  path[startingState]<-0
-  aux =  startingState
-  while(aux %in% setdiff(startingState:statesNumber, absorbing) && sum(path, na.rm=TRUE)<=to){
+  path[startingState]<-0 # start from time 0.
+  aux = startingState
+  kk = aux
+  while(aux %in% setdiff(startingState:statesNumber, absorbing) # 
+  ){ #setdiff gives vector of non-absorbing states
     aux = minTimeState[2,aux]
-    path[aux] = minTimeState[1,kk] + sum(path, na.rm=TRUE)
+    path[aux] = minTimeState[1,kk]  + path[kk] # bugfix (instead of sum(path, na.rm=TRUE))
+    if (!is.na(path[aux])&path[aux]>to) {path[aux] = NA} # bugfix instead of sum(path, na.rm=TRUE)
     kk =  aux
   }
   return(list(path,NULL))
@@ -741,8 +745,8 @@ plotPrevalence <-
       graphics::par(oma = c(0, 0, 2, 0))
       for (i in states) {
         graphics::plot(times, prevalence[, i], type = "l", col = col[1],
-             lwd = lwd[1], lty=lty[1], ylim = c(0, 1), ylab = ylab,
-             xlab = xlab, main = stateNames[[i]], ...)
+                       lwd = lwd[1], lty=lty[1], ylim = c(0, 1), ylab = ylab,
+                       xlab = xlab, main = stateNames[[i]], ...)
         try(graphics::lines(times, lower[,i], col=col[2], lty=lty[2], lwd=lwd[2]), silent=TRUE)
         try(graphics::lines(times, upper[,i], col=col[2], lty=lty[2], lwd=lwd[2]), silent=TRUE)
       }
@@ -752,7 +756,7 @@ plotPrevalence <-
       graphics::par(mfrow = c(1, 1))
       totalPrev <- prevalence[, 1]
       graphics::plot(times, totalPrev, col = 1, type = "l", ylim = c(0,
-                                                           1), ylab = "Probability", xlab = "Time")
+                                                                     1), ylab = "Probability", xlab = "Time")
       for (i in 2:dim(prevalence)[2]) {
         totalPrev <- totalPrev + prevalence[, i]
         graphics::lines(times, totalPrev, col = i)
@@ -1066,9 +1070,9 @@ setFunctions <-
       if (!is.element(i, impossible)) {
         if (history == TRUE)
           narg[i] = length(formals(functions[[i]])) - 2 -
-          1
+            1
         else narg[i] = length(formals(functions[[i]])) -
-          1 - 1
+            1 - 1
         if (i == 1)
           sample[[i]]@mu = Mu[1:narg[i]]
         else sample[[i]]@mu = Mu[(k + 1):(k + narg[i])]
@@ -1285,6 +1289,7 @@ simFunctions.NoUnc <- function (so, covariances, history, statesNumber, impossib
 #' plot(inc, ci=FALSE, states=c(2,3))
 #' 
 #' @export simulateCohort
+#' @importFrom stats complete.cases
 #' @references Nello Blaser, Luisa Salazar Vizcaya, Janne Estill, Cindy Zahnd, 
 #' Bindu Kalesan, Matthias Egger, Olivia Keiser, Thomas Gsponer (2015). gems: 
 #' An R Package for Simulating from Disease Progression Models. Journal of 
@@ -1312,7 +1317,7 @@ simulateCohort <-
     
     statesNumber <- dim(transitionFunctions@list.matrix)[1]
     
-    if (class(parameterCovariances) == "transition.structure")
+    if (class(parameterCovariances) == "transition.structure"){
       stopifnot(cohortSize>0,
                 is.list(transitionFunctions@list.matrix),
                 is.list(parameters@list.matrix),
@@ -1325,26 +1330,25 @@ simulateCohort <-
                 absorbing %in% 1:statesNumber,
                 length(initialState) %in% c(1, cohortSize)
       )
-    
-    else stopifnot(cohortSize>0,
-                   is.list(transitionFunctions@list.matrix),
-                   is.list(parameters@list.matrix),
-                   is.logical(parameterCovariances),
-                   dim(transitionFunctions@list.matrix)[1]==dim(transitionFunctions@list.matrix)[2],
-                   identical(dim(transitionFunctions@list.matrix), dim(parameters@list.matrix)),
-                   identical(dim(transitionFunctions@list.matrix), dim(timeToTransition)),
-                   initialState %in% 1:statesNumber,
-                   absorbing %in% 1:statesNumber,
-                   length(initialState) %in% c(1, cohortSize)
+    } else {stopifnot(cohortSize>0,
+                      is.list(transitionFunctions@list.matrix),
+                      is.list(parameters@list.matrix),
+                      is.logical(parameterCovariances),
+                      dim(transitionFunctions@list.matrix)[1]==dim(transitionFunctions@list.matrix)[2],
+                      identical(dim(transitionFunctions@list.matrix), dim(parameters@list.matrix)),
+                      identical(dim(transitionFunctions@list.matrix), dim(timeToTransition)),
+                      initialState %in% 1:statesNumber,
+                      absorbing %in% 1:statesNumber,
+                      length(initialState) %in% c(1, cohortSize)
     )
+    }
+    
     
     transitionFunction  =  transitionFunctions@list.matrix
     if (class(parameterCovariances) != "transition.structure"){
       if (parameterCovariances == FALSE) parameterCovariance = parameterCovariances
       else message("parameterCovariances needs to be of class transition.structure or the logical FALSE")
-    }
-    
-    else parameterCovariance =  parameterCovariances@list.matrix
+    } else {parameterCovariance =  parameterCovariances@list.matrix}
     
     parameters.in =  parameters@list.matrix
     
@@ -1387,17 +1391,34 @@ simulateCohort <-
         rm(fct, forms)
       }
     }
-    if (class(parameterCovariances) == "logical") sigma = parameterCovariance
-    
+    if (class(parameterCovariances) == "logical") { 
+      sigma <- parameterCovariance
+    }
     else  {
       sigma <- matrix(0, ncol=length(unlist(parameters.in)), nrow=length(unlist(parameters.in)))
+      # bugfix by Florian Kuhlmey and  Matthias Minke 
+      # set transPos as the matrix which defines positions of all possible transitions 
+      k <- 1
+      transPos <- matrix(NA, nrow=statesNumber*statesNumber, ncol=2) # span matrix of potential transition positions, to be filled in for-loops
+      for(i in 1:dim(parameterCovariance)[1]){ # rows
+        for(j in 1:dim(parameterCovariance)[1]){ # columns
+          if(is.null(parameterCovariance[[i,j]])==FALSE) {
+            transPos[k,1:2] <-  c(i,j)
+            k <- k+1
+          } 
+        }
+      }
       
+      transPos=transPos[stats::complete.cases(transPos),] # only keep positions of defined possible transitions (remove NAs)
+      #
       start <- 0
-      for (matIndex in 1:dim(parameterCovariance)[1]) {
-        leng <- dim(parameterCovariance[[matIndex]])[1]
+      for (matIndex in 1:dim(transPos)[1]) { 
+        row <- transPos[[matIndex,1]] # insert row and column numbers from transPos to call correct entries of parameterCovariance to fill sigma
+        column <- transPos[[matIndex,2]]
+        leng <- dim(parameterCovariance[[row,column]])[1] 
         if (is.null(leng)) leng <- 0
         if (leng>0) {
-          sigma[(start+1):(start+leng), (start+1):(start+leng)] <- parameterCovariance[[matIndex]]
+          sigma[(start+1):(start+leng), (start+1):(start+leng)] <- parameterCovariance[[row,column]] 
         }
         start <- start+leng
       }

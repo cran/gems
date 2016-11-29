@@ -1,6 +1,9 @@
 ﻿--------------------------
 ---- ChangeLog - gems ----
 --------------------------
+2016-11-27 Nello Blaser (version 1.1.0)
+	* Bugfix when calculating variance-covariance matrix (Thanks Florian Kuhlmey and Matthias Minke)
+	* Bugfix in histNoH when creating patient histories (Thanks Florian Kuhlmey and Matthias Minke)
 2015-03-09 Nello Blaser (version 1.0.0)
 	* JSS paper added as vignette
 	* Documentation updated
