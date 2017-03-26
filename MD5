@@ -1,9 +1,9 @@
 a787fe73c5e0a5b27943c2c6509444f4 *ChangeLog
-956fa091a6d2740394ae783b16f5b8d5 *DESCRIPTION
+ef2da5ed722d6225825dea6fe662aa70 *DESCRIPTION
 fe68f1d7bfadd33d4143aea3b1e1b8e8 *NAMESPACE
 2fa8a073b7285e7b5cf9216d402c760a *R/gems-package.R
 7904d86425dd98ad12f218b97d0cd45b *R/gems.r
-6612f104978547ad3c36aea4110cd63b *build/vignette.rds
+9aacf7e5c016aaa47b1866e946979598 *build/vignette.rds
 bddb8bedc7bc7ec247a02b76a8368f1a *data/tavi.rda
 6e45c6ed4bdc1a5d4d96ce1473b2d5f6 *inst/CITATION
 92f418ef0cbe314d116562777c23536d *inst/doc/gems.Rnw
